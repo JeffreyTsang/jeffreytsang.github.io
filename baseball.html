@@ -637,9 +637,8 @@ function callback (error, data, dataKinematic) {
 };
 
   //append baseball batter silhouette images to distance and polar plots
-  svgContainer.append("svg:image")
-  // .attr("xlink:href", function() {return "file:/Users/jeffrey/github/jeffreytsang.github.io/silhouette.png"})
-  .attr("xlink:href","Users/jeffrey/github/jeffreytsang.github.io/silhouette.png")
+  svgContainer.append("image")
+  .attr("xlink:href","http://www.supercoloring.com/sites/default/files/silhouettes/2015/07/baseball-batter-black-silhouette.svg")
   .attr("width", (1/2.5)*screenHeight)
   .attr("height", (1/2.5)*screenHeight)
   .attr("fill", "black")
@@ -647,9 +646,8 @@ function callback (error, data, dataKinematic) {
   .attr("y",0.315*screenHeight)
   .attr("style", "fill: red");
 
-  svgContainer.append("svg:image")
-  // .attr("xlink:href", function() {return "file:/Users/jeffrey/github/jeffreytsang.github.io/silhouette.png"})
-  .attr("xlink:href","Users/jeffrey/github/jeffreytsang.github.io/silhouette.png")
+  svgContainer.append("image")
+  .attr("xlink:href","http://www.supercoloring.com/sites/default/files/silhouettes/2015/07/baseball-batter-black-silhouette.svg")
   .attr("width", (1/2.5)*screenHeight)
   .attr("height", (1/2.5)*screenHeight)
   .attr("fill", "black")
