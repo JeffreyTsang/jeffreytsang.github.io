@@ -1,0 +1,1088 @@
+<DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<title>Pulse Of The Nation</title>
+<head>
+<!-- <link rel="stylesheet" type="text/css" href="javascript.fullPage.css" /> -->
+
+  <style>
+    /* Reset CSS
+     * --------------------------------------- */
+    body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,
+    form,fieldset,input,textarea,p,blockquote,th,td {
+        padding: 0;
+        margin: 0;
+    }
+    div.tooltip {
+      position: absolute;
+      text-align: center;
+
+      padding: 2px;
+      font: 12px sans-serif;
+      background: gray;
+      border: 0px;
+      border-radius: 8px;
+      pointer-events: none;
+    }
+    html * {
+      font-family: Merriweather !important;
+    }
+    a{
+      text-decoration:none;
+    }
+    table {
+        border-spacing: 0;
+    }
+    fieldset,img {
+        border: 0;
+    }
+    address,caption,cite,code,dfn,em,strong,th,var {
+        font-weight: normal;
+        font-style: normal;
+    }
+    strong{
+      font-weight: bold;
+    }
+    ol,ul {
+        list-style: none;
+        margin:0;
+        padding:0;
+    }
+    caption,th {
+        text-align: left;
+    }
+    h1,h2,h3,h4,h5,h6 {
+        font-weight: normal;
+        font-size: 100%;
+        margin:0;
+        padding:0;
+        color:#444;
+    }
+    q:before,q:after {
+        content:'';
+    }
+    abbr,acronym { border: 0;
+    }
+    /* Custom CSS
+     * --------------------------------------- */
+    body{
+      color: #F2F2F2;
+      background-color: #aaa;
+    }
+    h1{
+      font-size: 6em;
+    }
+    p{
+      font-size: 2em;
+    }
+
+    #info{
+      color:white;
+      font-size: 12px bold;
+      padding: 20px;
+      height: 16px;
+      text-align: center;
+      /* margin-bottom:150px; */
+    }
+
+    #info p{
+      color:black;
+      font-size:10px;
+    }
+    #form{
+      display: block;
+      margin: 15 auto;
+      text-align: center;
+    }
+    .container {
+      width: 1000px;
+      margin: 0em auto;
+    }
+    .paper {
+      width: 100%;
+      background: #fff;
+      border: 1px solid #cfcfcf;
+      box-shadow: 0px 3px 4px 0px rgba(0,0,0,0.2);
+      height: 450;
+    }
+
+  .paper1 {
+      width: 1142px;
+      background: #fff;
+      border: 1px solid #cfcfcf;
+      box-shadow: 0px 3px 4px 0px rgba(0,0,0,0.2);
+      height: 900;
+  }
+    .card {
+      padding: 1.5em 2.5em;
+      margin: 1em auto;
+    }
+
+    .card1 {
+      padding: 2.5em 10px;
+      margin: 2em auto;
+    }
+    .main-title {
+      color: #444;
+      font-size: 10px;
+      text-align: center;
+      margin: 1em auto;
+      padding: 0;
+    }
+    .sub-title {
+      color: #555;
+      font-size: 6.5px;
+      line-height: 1.75;
+      text-align: center;
+      border-top: 1px solid #dfdfdf;
+      padding-top: 1em;
+    }
+    select{
+      display: block;
+      margin: 5 auto;
+      text-align: center;
+      background-color: grey;
+      color: white;
+      font-size: 12px;
+    }
+
+    button{
+      font-size: 12px;
+      border-radius: 4px;
+    }
+    label{
+      font-size: 12px;
+      color: #444;
+      padding: 0 auto;
+      margin: 0 auto;
+    }
+
+    .container{
+      margin-right: 160px;
+    }
+
+
+    .container {
+      margin-right: 126px;
+    }
+    .container {
+      width: 1080px;
+      margin: 0em auto;
+      margin-right: 132px;
+    }
+    #question_title{
+      word-wrap: normal;
+      width: 1000;
+    }
+
+  </style>
+</head>
+<body>
+<div class="container">
+    <!-- <div class="section">Section 1 -->
+    <header class="paper card">
+    <div class="main-title">
+      <h1>Pulse Of The Nation</h1>
+    </div>
+    <div class='sub-title'>
+      <p>  A nationally representative sample of the American public was polled about their thoughts on social and political views, what they think of the president, and their pee-pee habits, etc.
+      <br><br>The first breakdown is a horizontal spatial breakdown of the respondents by either gender or trump approval. The second breakdown is a vertical spatial breakdown by either age range, politial affiliation, race or education. The third breakdown will cluster each set of circles by color based on either age range, politial affiliation, race or education. Hovering on the circles will provide further information.
+    </div>
+
+
+    <!-- </div> -->
+    <!-- <div class='section'> -->
+    <div id = "form">
+      <label for="filter_dropdown">First Breakdown</label>
+      <select id="filter_dropdown">
+          <option value=0>Gender</option>
+          <option value=3>Trump Approval</option>
+      </select>
+      <label for="filter_dropdown">Second Breakdown</label>
+      <select id="filter_dropdown2">
+          <option value=1>Age Range</option>
+          <option value=2 selected>Political Affiliation</option>
+          <option value=4>Race</option>
+          <option value=5>Education</option>
+      </select>
+      <label for="filter_dropdown">Third Breakdown</label>
+      <select id="filter_dropdown3">
+          <option value=0>No Color</option>
+          <option value=1>Age Range</option>
+          <option value=2>Political Affiliation</option>
+          <option value=4>Race</option>
+          <option value=5>Education</option>
+      </select>
+      <div class="question_dropdown">
+      <label for="filter_dropdown">Question</label>
+      <select id="question_dropdown">
+
+        <!-- October -->
+        <option value="Do you think that most white people in America are racist?">Do you think that most white people in America are racist?</option>
+        <option value="Have you ever eaten a kale salad?">Have you ever eaten a kale salad?</option>
+        <option value="If Dwayne, The Rock, Johnson ran for president as a candidate for your political party, would you vote for him?">If Dwayne "The Rock" Johnson ran for president as a candidate for your political party, would you vote for him?</option>
+        <option value="Who would you prefer as president of the United States, Darth Vader or Donald Trump?" selected>Who would you prefer as president of the United States, Darth Vader or Donald Trump?</option>
+        <option value="Do you think it is likely or unlikely that there will be a Civil War in the United States within the next decade?">Do you think it is likely or unlikely that there will be a Civil War in the United States within the next decade?</option>
+
+        <!-- September -->
+        <option value="Do you believe in ghosts?">Do you believe in ghosts?</option>
+        <option value="What would you say is the likelihood that your current job will be entirely performed by robots or computers within the next decade?">What would you say is the likelihood that your current job will be entirely performed by robots or computers within the next decade?</option>
+        <option value="If you had to choose: would you rather be smart and sad, or dumb and happy?">If you had to choose: would you rather be smart and sad, or dumb and happy?</option>
+        <option value="Do you think it is acceptable or unacceptable to urinate in the shower?">Do you think it is acceptable or unacceptable to urinate in the shower?</option>
+
+        <!-- Nov -->
+        <option value="Do you consider rap a form of music?">Do you consider rap a form of music?</option>
+        <!-- Feb 2018 -->
+        <option value="Would you consider yourself pro-life or pro-choice?">Would you consider yourself pro-life or pro-choice?</option>
+        <option value="Do you plan on voting for Donald Trump in 2020?">Do you plan on voting for Donald Trump in 2020?</option>
+        <!-- March 2018 -->
+        <option value="Would you support a law that would limit the size of soft drinks and other sugary beverages served in restaurants to no more than 16 ounces?">Would you support a law that would limit the size of soft drinks and other sugary beverages served in restaurants to no more than 16 ounces?</option>
+        <option value="Do you believe that prostitution should be against the law?">Do you believe that prostitution should be against the law?</option>
+        <option value="Do you believe that it should be against the law to smoke marijuana for recreation?">Do you believe that it should be against the law to smoke marijuana for recreation?</option>
+      </select>
+      </div>
+      <button class="button" id="submit" onclick="myFunction2(document.getElementById('filter_dropdown').value, document.getElementById('filter_dropdown2').value, document.getElementById('filter_dropdown3').value, document.getElementById('question_dropdown').value)">Submit</button>
+      <button class="button" onclick="showCounts()">Show/Hide Group Totals</button>
+    </div>
+    </header>
+<header class="paper1 card1">
+<svg id="container"></svg>
+</header>
+
+
+<!-- 9
+down vote
+accepted
+var select=document.getElementById('DD1');
+
+for (i=0;i<select.length;  i++) {
+   if (select.options[i].value=='D') {
+     select.remove(i);
+   }
+} -->
+
+      <!-- </div> -->
+
+
+</div>
+
+<script src="//d3js.org/d3.v4.min.js"></script>
+<link href="https://fonts.googleapis.com/css?family=Merriweather" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Merriweather+Sans" rel="stylesheet">
+<body>
+<script id="project2">
+var div = d3.select("body").append("div")
+.attr("class", "tooltip")
+.style("opacity", 0);
+
+var x_group = 0;
+var y_group = 0;
+var z_group = 0;
+var question = '';
+var z_length = 0;
+var show_hide = 0;
+var list=[];
+var answer1 = "";
+var answer2 = "";
+function myFunction2(d, d2, col, e){
+  show_hide = 0;
+  x_group = d;
+  y_group = d2;
+  z_group = col;
+  question = e;
+
+  var c = "";
+  d3.select("#container").selectAll("*").remove();
+  if(question == "Do you think that most white people in America are racist?"
+      || question == "Have you ever eaten a kale salad?"
+      || question == "If Dwayne, The Rock, Johnson ran for president as a candidate for your political party, would you vote for him?"
+      || question == "Who would you prefer as president of the United States, Darth Vader or Donald Trump?"
+      || question == "Do you think it is likely or unlikely that there will be a Civil War in the United States within the next decade?"
+    ) {
+    c = "201710-CAH_PulseOfTheNation.csv";
+  }
+  else if( question == "Do you consider rap a form of music?"){
+    c = "201711-CAH_PulseOfTheNation.csv";
+  }
+  else if (question == "Would you consider yourself pro-life or pro-choice?"
+          || question == "Do you plan on voting for Donald Trump in 2020?"
+    ){
+    c = "201802-CAH_PulseOfTheNation_Raw.csv";
+  }
+  else if ( question == "Would you support a law that would limit the size of soft drinks and other sugary beverages served in restaurants to no more than 16 ounces?"
+          || question == "Do you believe that prostitution should be against the law?"
+          || question == "Do you believe that it should be against the law to smoke marijuana for recreation?"
+    ){
+     c = "201803-CAH_PulseOfTheNation_Raw.csv";
+  }
+  else{
+    c = "201709-CAH_PulseOfTheNation.csv";
+  }
+  d3.csv(c, mutateRow, callback);
+
+}
+
+var svgContainer1 = d3.select("#container");
+var svgContainer2 = d3.select("#container2");
+var screenWidth = 1100;
+var screenHeight = 1200;
+svgContainer1.attr("width",  screenWidth);
+svgContainer1.attr("height", screenHeight);
+svgContainer2.attr("width",  screenWidth);
+svgContainer2.attr("height", 40);
+
+
+function drawline(n){
+  var circle = svgContainer1.append("line")
+                          .attr("x1", screenWidth/2)
+                          .attr("y1", 70)
+                          .attr("x2",  screenWidth/2)
+                          .attr("y2", n)
+                          .attr("stroke-width", 2)
+                          .attr("stroke", "black");
+}
+
+  var classify_approval = function(s){
+  if (s.toLowerCase().includes("approve")
+    && !s.toLowerCase().includes("disapprove")){
+      return "approve";
+    }
+    else if (s.toLowerCase().includes("disapprove")){
+      return "disapprove";
+    }
+    else if (s.toLowerCase().includes("neither")){ return "neither"; }
+    else return "residual"; // don't know/refused; Yes; and No
+  };
+  var classify_political = function(s){
+    if (s.toLowerCase().includes("democrat")){ return "democrat"; }
+    else if (s.toLowerCase().includes("republican")){ return "republican"; }
+    else if (s.toLowerCase().includes("independent")){ return "independent"; }
+    else return "residual"; // DK/REF
+  };
+  var classify_gender = function(s){
+    if (s.toLowerCase().includes("female")) {return "female"; }
+    else if (s.toLowerCase().includes("male")) { return "male"; }
+    else return "residual"; // includes don't know/refused; other
+  }
+  var classify_race = function(s){
+    if (s[0] == "D") { return "residual"; } // includes don't know/refused
+    else return s.toLowerCase();
+  }
+  var classify_education = function(s){
+    if (s.toLowerCase().includes("high school")) {return "high school";}
+    else if (s[0] == "D" || s == "Other") {return "residual";}
+    else return s.toLowerCase();
+  }
+  function mutateRow(row) {
+    keys = Object.keys(row);
+
+    keys.forEach(function(s){
+      // console.log(s);
+
+      if (s.toLowerCase().includes("job") && s.toLowerCase().includes("approve")){ // approval is NOT in 1
+        row["approval"] = classify_approval(row[s]);
+        // value is ONE OF 'approve', 'disapprove', 'neither', or 'residual'
+      }
+      if (s.toLowerCase().includes("income")){ // income is NOT in 12, 1, 2, or 3
+        row["income"] = row[s];
+      }
+      if (s.toLowerCase().includes("political affiliation") || s.toLowerCase().includes("democrat, a republican, or ind")){
+        row["political_affiliation"] = classify_political(row[s]);
+        // value is ONE OF 'democrat', 'republican', 'independent', or 'residual'
+      }
+      if (s.toLowerCase().includes("gender")){
+        row["gender"] = classify_gender(row[s]);
+        // value is ONE OF 'male', 'female', or 'residual'
+      }
+      if (s.toLowerCase().includes("age range")){
+        row["age_range"] = row[s]
+        // value is ONE OF '18-24', '25-34', '35-44', '45-54', '55-64', or '65+'
+      }
+      if (s.toLowerCase().includes("race")){
+        row["race"] = classify_race(row[s]);
+        // value is ONE OF 'asian', 'black', 'latino', 'other', 'residual', or 'white'
+      }
+      if (s.toLowerCase().includes("education")){
+        row["education"] = classify_education(row[s]);
+        // value is ONE OF 'college degree', 'graduate degree', 'high school', 'residual', or 'some college'
+      }
+
+    });
+
+
+    // y group
+     if (y_group == 1){
+      var age = row.age_range;
+      if( age.length > 1 && age == "18-24"){
+        row.color = 5;
+      }
+      else if( age.length > 1 && age == "25-34"){
+        row.color = 1;
+      }
+      else if( age.length > 1 && age == "35-44"){
+        row.color = 2;
+      }
+      else if( age.length > 1 && age == "45-54"){
+        row.color = 3;
+      }
+      else if( age.length > 1 && age == "55-64"){
+        row.color = 4;
+      }
+      else if( age.length > 1 && age == "65+"){
+        row.color = 0;
+      }
+
+    } else if (y_group == 2){
+      var pa = row.political_affiliation;
+      if( pa.length > 1 && pa == "republican"){
+        row.color = 0;
+      }
+      else if( pa.length > 1 && pa == "democrat"){
+        row.color = 1;
+      }
+      else if( pa.length > 1 && pa == "independent"){
+        row.color = 2;
+      }
+    }  else if (y_group == 4){
+      var r = row.race;
+      if( r.length > 1 && r == "white"){
+        row.color = 0;
+      }
+      else if( r.length > 1 && r == "black"){
+        row.color = 1;
+      }
+      else if( r.length > 1 && r == "latino"){
+        row.color = 2;
+      }
+      else if( r.length > 1 && r == "asian"){
+        row.color = 3;
+      }
+      else if( r.length > 1 && r == "other"){
+        row.color = 4;
+      }
+
+    } else if (y_group == 5){
+      var edu = row.education;
+      if( edu.length > 1 && edu == "graduate degree"){
+        row.color = 3;
+
+      }
+      else if( edu.length > 1 && edu == "college degree"){
+        row.color = 1;
+
+      }
+      else if( edu.length > 1 && edu == "some college"){
+        row.color = 2;
+
+      }
+      else if( edu.length > 1 && edu == "high school"){
+        row.color = 0;
+
+      }
+    }
+
+    // z group
+    if (z_group == 1){
+     z_length = 6;
+     var age = row.age_range;
+     if( age.length > 1 && age == "18-24"){
+       row.colorwcluster = 0;
+       return row;
+     }
+     else if( age.length > 1 && age == "25-34"){
+       row.colorwcluster = 1;
+       return row;
+     }
+     else if( age.length > 1 && age == "35-44"){
+       row.colorwcluster = 2;
+       return row;
+     }
+     else if( age.length > 1 && age == "45-54"){
+       row.colorwcluster = 3;
+       return row;
+     }
+     else if( age.length > 1 && age == "55-64"){
+       row.colorwcluster = 4;
+       return row;
+     }
+     else if( age.length > 1 && age == "65+"){
+       row.colorwcluster = 5;
+       return row;
+     }
+
+   } else if (z_group == 2){
+     z_length = 3;
+     var pa = row.political_affiliation;
+     if( pa.length > 1 && pa == "republican"){
+       row.colorwcluster = 0;
+       return row;
+     }
+     else if( pa.length > 1 && pa == "democrat"){
+       row.colorwcluster = 1;
+       return row;
+     }
+     else if( pa.length > 1 && pa == "independent"){
+       row.colorwcluster = 2;
+       return row;
+     }
+   }  else if (z_group == 4){
+     z_length = 5;
+     var r = row.race;
+     if( r.length > 1 && r == "white"){
+       row.colorwcluster = 0;
+       return row;
+     }
+     else if( r.length > 1 && r == "black"){
+       row.colorwcluster = 1;
+       return row;
+     }
+     else if( r.length > 1 && r == "latino"){
+       row.colorwcluster = 2;
+       return row;
+     }
+     else if( r.length > 1 && r == "asian"){
+       row.colorwcluster = 3;
+       return row;
+     }
+     else if( r.length > 1 && r == "other"){
+       row.colorwcluster = 4;
+       return row;
+     }
+
+   } else if (z_group == 5){
+     z_length = 4;
+     var edu = row.education;
+     if( edu.length > 1 && edu == "graduate degree"){
+       row.colorwcluster = 0;
+       return row;
+     }
+     else if( edu.length > 1 && edu == "college degree"){
+       row.colorwcluster = 1;
+       return row;
+     }
+     else if( edu.length > 1 && edu == "some college"){
+       row.colorwcluster = 2;
+       return row;
+     }
+     else if( edu.length > 1 && edu == "high school"){
+       row.colorwcluster = 3;
+       return row;
+     }
+   } else if (z_group == 0){
+     z_length = 0;
+     row.colorwcluster = 6;
+     return row;
+   }
+  }
+function callback(error, node) {
+
+    if (question == "What would you say is the likelihood that your current job will be entirely performed by robots or computers within the next decade?"
+        || question == "Do you think it is likely or unlikely that there will be a Civil War in the United States within the next decade?"
+      ){
+      answer1 = "Likely";
+      answer2 = "Unlikely";
+    } else if (question == "If you had to choose: would you rather be smart and sad, or dumb and happy?"){
+      answer1 = "Dumb and happy";
+      answer2 = "Smart and Sad";
+    } else if (question == "Do you think it is acceptable or unacceptable to urinate in the shower?"){
+      answer1 = "Acceptable";
+      answer2 = "Unacceptable";
+    }
+    else if (question == "Do you think that most white people in America are racist?"
+            || question == "Have you ever eaten a kale salad?"
+            || question == "If Dwayne, The Rock, Johnson ran for president as a candidate for your political party, would you vote for him?"
+            || question == "Do you consider rap a form of music?"
+            || question == "Do you believe in ghosts?"
+            || question == "Do you plan on voting for Donald Trump in 2020?"
+            || question == "Would you support a law that would limit the size of soft drinks and other sugary beverages served in restaurants to no more than 16 ounces?"
+            || question == "Do you believe that prostitution should be against the law?"
+            || question == "Do you believe that it should be against the law to smoke marijuana for recreation?"
+           ){
+      answer1 = "Yes";
+      answer2 = "No";
+    }
+    else if (question == "Would you consider yourself pro-life or pro-choice?"){
+      answer1 = "Pro-Choice";
+      answer2 = "Pro-life";
+    }
+    else if ( question == "Who would you prefer as president of the United States, Darth Vader or Donald Trump?"){
+      answer1 = "Darth Vader";
+      answer2 = "Donald Trump";
+    }
+
+
+
+    var node1 = node.filter(function (d){ return d[question] == answer1 }).filter(d=> d["political_affiliation"] != "residual");
+    var node2 = node.filter(function (d){ return d[question] == answer2 }).filter(d => d["political_affiliation"] != "residual");
+
+    var node1_left, node1_right, node2_left, node2_right;
+
+    if( x_group == 0){
+       var node1_left = node1.filter(function (d){ return d.gender == "female"; });
+       var node1_right = node1.filter(function (d){ return d.gender == "male"; });
+       var node2_left = node2.filter(function (d){ return d.gender == "female"; });
+       var node2_right = node2.filter(function (d){ return d.gender == "male"; });
+    }
+    else if (x_group==3){
+        var node1_left = node1.filter(function (d){ ;return d.approval == "approve"; });
+        var node1_right = node1.filter(function (d){ return d.approval == "disapprove"; });
+        var node2_left = node2.filter(function (d){ return d.approval == "approve"; });
+        var node2_right = node2.filter(function (d){ return d.approval == "disapprove"; });
+    }
+
+    svgContainer1.append("text")
+    .attr("id", "question_title")
+    .attr("x",screenWidth/2)
+    .attr("y",30)
+    .attr("text-anchor", "middle")
+    .attr("alignment-baseline", "middle")
+    .attr("style","font-size: 15; font-weight: bold")
+    .text(question);
+
+    svgContainer1.append("text")
+    .attr("x",screenWidth/4 + 45)
+    .attr("y",75)
+    .attr("text-anchor", "middle")
+    .attr("alignment-baseline", "middle")
+    .attr("style","font-size: 30; font-weight: bold")
+    .text(answer1);
+    svgContainer1.append("text")
+    .attr("x",3 * screenWidth/4 - 30)
+    .attr("y",75)
+    .attr("text-anchor", "middle")
+    .attr("alignment-baseline", "middle")
+    .attr("style","font-size: 30; font-weight: bold")
+    .text(answer2);
+    var width = 1000,
+        height = 1200;
+        padding=20;
+
+        var nested_nodes_L1 = d3.nest()
+          .key(function(d) {return d.color ;})
+          .sortKeys(d3.ascending)
+          .entries(node1_left);
+        // console.log(nested_nodes_L1.values);
+        var nested_nodes_R1 = d3.nest()
+            .key(function(d) {return d.color ;})
+            .sortKeys(d3.ascending)
+            .entries(node1_right);
+        var nested_nodes_L2 = d3.nest()
+          .key(function(d) {return d.color ;})
+          .sortKeys(d3.ascending)
+          .entries(node2_left);
+      var nested_nodes_R2 = d3.nest()
+        .key(function(d) {return d.color ;})
+        .sortKeys(d3.ascending)
+        .entries(node2_right);
+    // console.log(nested_nodes_L1);
+
+    list = [];
+    var l1 = [];
+    var l2 = [];
+    var l3 = [];
+    var l4 = [];
+    // console.log(nested_nodes_L1);
+        for(i = 0; i<=nested_nodes_R2.length; i++){
+          // var p = nested_nodes_L1[i].values.length;
+          // console.log(p);
+          // console.log(nested_nodes_R1[i]);
+          // console.log(((nested_nodes_L1[i] != undefined) || (nested_nodes_L2[i] != undefined) || (nested_nodes_R1[i] != undefined) || (nested_nodes_R2[i] != undefined)));
+          if (nested_nodes_L1[i] != undefined){
+            l1.push(nested_nodes_L1[i].values.length);
+          } else {l1.push(0);}
+          if (nested_nodes_R1[i] != undefined){
+            l2.push(nested_nodes_R1[i].values.length);
+          } else {l2.push(0);}
+          if (nested_nodes_L2[i] != undefined){
+            l3.push(nested_nodes_L2[i].values.length);
+          } else {l3.push(0);}
+          if (nested_nodes_R2[i] != undefined){
+            l4.push(nested_nodes_R2[i].values.length);
+          } else {l4.push(0);}
+
+          // if ((nested_nodes_L1[i] != undefined) && (nested_nodes_L2[i] != undefined) && (nested_nodes_R1[i] != undefined) && (nested_nodes_R2[i] != undefined)){
+          //   l1.push(nested_nodes_L1[i].values.length);
+          //   l2.push(nested_nodes_R1[i].values.length);
+          //   l3.push(nested_nodes_L2[i].values.length);
+          //   l4.push(nested_nodes_R2[i].values.length);
+          // }
+        }
+
+        list.push(l1);
+
+        list.push(l2);
+        list.push(l3);
+        list.push(l4);
+
+        // console.log(list);
+        // console.log(list[0]);
+        nested_nodes_L1.forEach(function(d){
+            var val = d.values;
+            draw(val, 3, d.key, height, width,0);
+        });
+        nested_nodes_R1.forEach(function(d){
+            var val = d.values;
+            draw(val, 7, d.key, height, width,1);
+        });
+        nested_nodes_L2.forEach(function(d){
+            var val = d.values;
+            draw(val, 11, d.key, height, width,2);
+        });
+        nested_nodes_R2.forEach(function(d){
+            var val = d.values;
+            draw(val, 15, d.key, height, width,3);
+        });
+
+        draw1(node1_left, 1, height, width);
+        draw1(node1_right, 3, height, width);
+        draw1(node2_left, 5, height, width);
+        draw1(node2_right, 7, height, width);
+
+    var end_section = parseInt(d3.select(".paper1").style("height"));
+    d3.select(".paper1").style("height", 1000 * nested_nodes_R2.length / 6 + 100);
+
+    drawline(1000 * nested_nodes_R2.length / 6 + 100);
+
+    var total=d3.sum(l1)+d3.sum(l2)+d3.sum(l3)+d3.sum(l4);
+
+    var ptext=svgContainer1.append("text")
+      .attr("x", screenWidth/4 + 45)
+      .attr("y", 105)
+      .attr("text-anchor", "middle")
+      .attr("alignment-baseline", "middle")
+      .text(Math.round((100*(d3.sum(l1)+d3.sum(l2))/total),2)+"%");
+
+      var ptext2=svgContainer1.append("text")
+        .attr("x", 3 * screenWidth/4 - 30)
+        .attr("y", 105)
+        .attr("text-anchor", "middle")
+        .attr("alignment-baseline", "middle")
+        .text(Math.round((100*(d3.sum(l3)+d3.sum(l4))/total),2)+"%");
+  }
+
+
+
+  c=[];
+  function draw (node, col, row, height, width,ncol){
+
+   if (!isNaN(row)){
+
+    var n = node.length, // total number of circles
+        m = 4; // number of distinct clusters
+     var color = d3.scaleOrdinal() // D3 Version 4
+    .domain(["0", "1", "2","3","4","5"])
+    .range(["#FF0000","#0000FF", "#ffff66" , "#ff9900","#cc33ff","#00cc00"]);
+
+    var map = [['Female','Male'],['18-24','25-34','35-44','45-54','55-64','65+'],['Republican','Democrat','Independent'],['approving of Trump','disapproving of Trump'],['White','Black','Latino','Asian','Other'],['Grad Degree', 'Coll. Degree','Some Coll.','High School']];
+
+    var clusters = new Array(m);
+
+    var nodes = d3.range(n).map(function(b) {
+      var n = node[b];
+      var i = n.colorwcluster,
+          r = 3,
+          d = {cluster: i, radius: r};
+      if (!clusters[i] || (r > clusters[i].radius)) { clusters[i] = d; }
+
+      return d;
+     }).filter(d => !isNaN(d.cluster));
+
+    nested_nodes = d3.nest()
+    .key(function(d) {return d.cluster;})
+    .entries(nodes);
+
+    var cluster_counts = new Array(clusters.length);
+
+    nested_nodes.forEach(function(d){
+      cluster_counts[d.key] = d.values.length;
+      c.push(d.values.length);
+    });
+
+    var forceCollide = d3.forceCollide()
+        .radius(function(d) { return d.radius + 1.5; })
+        .iterations(1);
+    var force = d3.forceSimulation()
+        .nodes(nodes)
+        .force("center", d3.forceCenter())
+        .force("collide", forceCollide)
+        .force("cluster", forceCluster)
+        .force("gravity", d3.forceManyBody(30))
+        .force("x", d3.forceX().strength(2))
+        .force("y", d3.forceY().strength(2))
+        .on("tick", tick);
+
+    var svg = svgContainer1
+      .append('g')
+        .attr('transform', 'translate(' + ( (width/16 * col)) + ',' + ( (height/8 * row + 240)  )+ ')');
+    var circle = svg.selectAll("circle")
+        .data(nodes)
+        .enter().append("circle")
+        .attr("r", function(d) { return d.radius; })
+        .style("fill", function(d) { return color(d.cluster) })
+        .style("stroke", "#aaa")
+        .style("stroke-width", .4)
+        .on("mouseover", function(d) {
+          div.transition()
+          .duration(200)
+          .style("opacity", .9);
+
+          function add(a) {
+            // console.log(a);
+            var sum = 0;
+            for(i=0; i<a.length; i++){
+                sum = sum + a[i];
+            }
+            // console.log(sum);
+            return sum;
+        }
+          var txt = 0, txt2 = 0, txt3 = 0; txt4 =0;
+            if(ncol == 0){
+               txt = Math.round( ( list[0][row] / (list[0][row]+list[1][row]) )* 100 );
+               txt2 = Math.round( ( list[0][row] / (add(list[0])) )* 100 );
+               txt3 = Math.round( ( list[0][row] / (add(list[0])+add(list[1])) )* 100 );
+               txt4 = Math.round( ( list[0][row] / ( list[0][row]+list[2][row] )* 100 ));
+            }
+            if(ncol == 1){
+               txt = Math.round( ( list[1][row] / (list[1][row]+list[0][row]) )* 100 );
+               txt2 = Math.round( ( list[1][row] / (add(list[1])) )* 100 );
+               txt3 = Math.round( ( list[1][row] / (add(list[1])+add(list[0])) )* 100 );
+               txt4 = Math.round( ( list[1][row] / ( list[1][row]+list[3][row] )* 100 ));
+            }
+            if(ncol == 2){
+               txt = Math.round( ( list[2][row] / (list[2][row]+list[3][row]) )* 100 );
+               txt2 = Math.round( ( list[2][row] / (add(list[2])) )* 100 );
+               txt3 = Math.round( ( list[2][row] / (add(list[2])+add(list[3])) )* 100 );
+               txt4 = Math.round( ( list[2][row] / ( list[2][row]+list[0][row] )* 100 ));
+            }
+            if(ncol == 3){
+               txt = Math.round( ( list[3][row] / (list[3][row]+list[2][row]) )* 100 );
+               txt2 = Math.round( ( list[3][row] / (add(list[3])) )* 100 );
+               txt3 = Math.round( ( list[3][row] / (add(list[3])+add(list[2])) )* 100 );
+               txt4 = Math.round( ( list[3][row] / ( list[3][row]+list[1][row] )* 100 ));
+            }
+
+          if(ncol == 0 || ncol == 1){
+            div.html(txt+"% of " + map[y_group][row] + " respondents who answered " + answer1 + " were " + map[x_group][ncol]+  "<br>" +
+                  txt2+"% of " + map[x_group][ncol] + " respondents who answered " + answer1 + " were " + map[y_group][row]+  "<br>" +
+                  "Of " + answer1 +" respondents " + txt3+"% were " + map[x_group][ncol] + " & " + map[y_group][row]+  "<br>" +
+                  "Of respondents who were "+ map[x_group][ncol] + " & " + map[y_group][row] +  ", " +  txt4 + "% responded "+ answer1 +"<br>"
+                  )
+          .style("left", (d3.event.pageX + 10 ) + "px")
+          .style("top", (d3.event.pageY) + "px");
+          }
+          else if (ncol == 2 || ncol == 3){
+            div.html(txt+"% of " + map[y_group][row] + " respondents who answered " + answer2 + " were " + map[x_group][ncol-2]+  "<br>" +
+                  txt2+"% of " + map[x_group][ncol-2] + " respondents who answered " + answer2 + " were " + map[y_group][row]+  "<br>" +
+                  "Of " + answer2 +" respondents " + txt3+"% were " + map[x_group][ncol-2] + " & " + map[y_group][row]+  "<br>" +
+                  "Of respondents who were "+ map[x_group][ncol-2] + " & " + map[y_group][row] + ", " + txt4 + "% responded "+ answer2 +"<br>"
+                  )
+          .style("left", (d3.event.pageX + 10 ) + "px")
+          .style("top", (d3.event.pageY) + "px");
+          }
+
+          })
+        .on("mouseout", function(d) {
+          div.transition()
+          .duration(500)
+          .style("opacity", 0);
+        });
+
+
+    function tick() {
+      circle
+          .attr("cx", function(d) { return d.x; })
+          .attr("cy", function(d) { return d.y; });
+    }
+    function forceCluster(alpha) {
+      for (var i = 0, n = nodes.length, node, cluster, k = alpha * 1; i < n; ++i) {
+        node = nodes[i];
+        cluster = clusters[node.cluster];
+        node.vx -= (node.x - cluster.x) * k;
+        node.vy -= (node.y - cluster.y) * k;
+      }
+    }
+   }
+  }
+
+  function showCounts(){
+    if (show_hide == 0){
+      d3.select("#container").selectAll("#counts")
+        .style("stroke", "black")
+        .style("fill", "black");
+      show_hide = 1;
+    } else {
+      d3.select("#container").selectAll("#counts")
+        .style("stroke", "white")
+        .style("fill", "white");
+      show_hide = 0;
+    }
+
+  }
+  function draw1 (node, col, height, width){
+
+    var n = node.length, // total number of circles
+        m = 4; // number of distinct clusters
+        var color = d3.scaleOrdinal() // D3 Version 4
+    .domain(["0", "1", "2","3","4","5"])
+    .range(["#FF0000","#0000FF", "#ffff66" , "#ff9900","#cc33ff","#00cc00"]);
+
+    var map = [['Female','Male'],['18-24','25-34','35-44','45-54','55-64','65+'],['Republican','Democrat','Independent'],['Approve of Trump','Disapprove of Trump'],['White','Black','Latino','Asian','Other'],['Grad Degree', 'Coll. Degree','Some Coll.','High School']];
+
+    var clusters = new Array(m);
+    var nodes = d3.range(n).map(function(b) {
+      var n = node[b];
+      var i = n.color,
+          r = 3,
+          d = {cluster: i, radius: r, col: n.colorwcluster};
+
+      if (!clusters[i] || (r > clusters[i].radius)) { clusters[i] = d; }
+      return d;
+    }).filter(d => !isNaN(d.cluster));
+
+    nested_nodes = d3.nest()
+    .key(function(d) {return d.cluster;})
+    .sortKeys(d3.ascending)
+    .entries(nodes);
+
+
+
+    var cluster_counts = new Array(clusters.length);
+
+
+  var compiled_cluster_counts =[];
+    nested_nodes.forEach(function(d){
+      cluster_counts[d.key] = d.values.length;
+
+      var svg = svgContainer1
+        .append('g')
+          .attr('transform', 'translate(' + (width / 8.0 * col+60) + ',' + (height * (2*d.key/3) +240) +')');
+
+          var svg2= svgContainer1
+            .append('g')
+              .attr('transform', 'translate(' + (width / 8.0 * col+60) + ',' + (height * (2*d.key/3) +240) +')');
+
+    });
+
+    compiled_cluster_counts.push(cluster_counts);
+
+    compiled_cluster_counts.forEach(function(d){
+
+      index=0
+    var svg2= svgContainer1
+      .append('g')
+        .attr('transform', 'translate(' + (width / 8.0 * col+60) + ',' + (height *index +240) +')');
+    var countlegend = svg2.selectAll(".legend")
+      .data(d)
+     .enter().append("g")
+     .attr("class", "countlegend")
+     .attr("transform", function(d, i) {  return "translate(0," + i * 150 + ")"; });
+
+
+
+   countlegend.append("text")
+     .attr("id", "counts")
+     .style("stroke", "white")
+     .style("fill", "white")
+     .attr("x", 75)
+     .attr("y", 75)
+     .attr("dy", ".35em")
+     .style("text-anchor", "end")
+
+     .text(function(d) {return d});
+     index++;
+  });
+
+
+    var ylegend = svgContainer1.selectAll(".legend")
+      .data(color.domain().slice(0,nested_nodes.length))
+     .enter().append("g")
+     .attr("class", "ylegend")
+     .attr("transform", function(d, i) { return "translate(0," + i * 150 + ")"; });
+
+
+   ylegend.append("text")
+     .attr("x", 100)
+     .attr("y", 240)
+     .attr("dy", ".35em")
+     .style("text-anchor", "end")
+
+     .text(function(d) { return map[y_group][d];});
+
+
+
+     var xlegend = svgContainer1.selectAll(".legend")
+       .data(color.domain().slice(0,nested_nodes.length))
+      .enter().append("g")
+      .attr("class", "xlegend")
+            .attr("transform", function(d, i) { return "translate(" + i * 250 + ",0)"; });
+
+
+    xlegend.append("text")
+      .attr("x", 185)
+      .attr("y", 115)
+      .attr("text-anchor", "middle")
+      .attr("alignment-baseline", "middle")
+      .attr("dy", ".35em")
+
+      .text(function(d) { return map[x_group][d];});
+
+
+      var xlegend2 = svgContainer1.selectAll(".legend")
+        .data(color.domain().slice(0,nested_nodes.length))
+       .enter().append("g")
+       .attr("class", "xlegend2")
+             .attr("transform", function(d, i) { return "translate(" + i * 260 + ",0)"; });
+
+
+     xlegend2.append("text")
+       .attr("x", 680)
+       .attr("y", 115)
+       .attr("text-anchor", "middle")
+       .attr("alignment-baseline", "middle")
+       .attr("dy", ".35em")
+
+       .text(function(d) { return map[x_group][d];});
+
+     var colorlegend = svgContainer1.selectAll(".legend")
+       .data(color.domain().slice(0,z_length))
+      .enter().append("g")
+      .attr("class", "colorlegend")
+      .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+     colorlegend.append("rect")
+       .attr("x", 1082)
+       .attr("y", 33)
+       .attr("width", 18)
+       .attr("height", 18)
+       .style("fill", color);
+
+    colorlegend.append("text")
+      .attr("x", 1075)
+      .attr("y", 43)
+      .attr("dy", ".35em")
+      .style("font-size","12px")
+      .style("text-anchor", "end")
+      .text(function(d) { return map[z_group][d];});
+
+      var circlelegend=svgContainer1.append('circle')
+      .attr("cx", 1050)
+       .attr("cy", 10)
+       .attr("r", 2)
+       .style("stroke","black");
+
+
+       var circletext=svgContainer1.append("text")
+         .attr("x", 1030)
+         .attr("y", 10)
+         .attr("dy", ".35em")
+         .style("text-anchor", "end")
+         .text("one person =");
+
+  }
+document.getElementById("submit").click();
+</script>
+
+
+</body>
+</body>
+</html>
