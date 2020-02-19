@@ -3,8 +3,8 @@
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <link href="https://fonts.googleapis.com/css?family=Merriweather" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css?family=Merriweather+Sans" rel="stylesheet">
-<style> 
-  svg { font-family: 'Merriweather', serif;} 
+<style>
+  svg { font-family: 'Merriweather', serif;}
 </style>
 <body>
 <svg height="400" width="400" id="container">
@@ -130,9 +130,9 @@ function callback (error, data, dataKinematic) {
   	return d.exitVelo;});
   var veloScale = d3.scaleLinear().domain(veloExtent).range([radius*0.4,radius*0.9]);
 
-  //draw angular gridlines and labels on polar plot 
+  //draw angular gridlines and labels on polar plot
   for (var i = -20; i<= 40; i = i+10){
-    
+
     var coords= transformCoord(radius,i);
     var coordsText= transformCoord(radius*1.05,i);
 
@@ -157,7 +157,7 @@ function callback (error, data, dataKinematic) {
 
   //draw radial gridlines and labels on polar plot
   for (var i = 114; i<= 124; i=i+2){
-    
+
     maskCircle(String(i),veloScale(i));
 
     svg.append("circle")
@@ -170,7 +170,7 @@ function callback (error, data, dataKinematic) {
     .attr("clip-path", "url(#"+String(i)+")");
 
     var xcoord = transformCoord(veloScale(i),40)[0];
-    var ycoord = transformCoord(veloScale(i),40)[1];   
+    var ycoord = transformCoord(veloScale(i),40)[1];
 
     svg.append("text")
     .attr("x", xcoord-(radius)*0.05*Math.cos(40*(Math.PI/180)))
@@ -334,16 +334,16 @@ function callback (error, data, dataKinematic) {
       .attr("r", 3)
       .attr("opacity", 0.5)
       .attr("fill", d.outcome == "Home Run" ? "red":"grey");
-    } 
+    }
 
   });
 
-  //returns function describing parabolic trajectory connecting points (x0,y0) to (xf,yf) with vertex at y = h; 
+  //returns function describing parabolic trajectory connecting points (x0,y0) to (xf,yf) with vertex at y = h;
   //mathematical expressions for parabola coefficients generated with Wolfram mathematica
   function generateParabola (x0,y0,xf,yf,h){
     var scaleFactor = (2*Math.sqrt(((x0-xf)**4)*(h-y0)*(h-yf))/((x0-xf)**4))+((-2*h)+y0+yf)/((x0-xf)**2);
     var offset = (Math.sqrt(((x0-xf)**4)*(h-y0)*(h-yf))+((x0-xf)*(h*(x0-xf)+(xf*y0)-(x0*yf))))/((x0-xf)*(y0-yf))
-    
+
     return function (pos){
       return scaleFactor*((pos-offset)**2)+h;
     }
@@ -634,11 +634,11 @@ function callback (error, data, dataKinematic) {
   .attr("opacity",0.6)
   .text("the kinematic model fall short of actual data.");
 
-};        
+};
 
   //append baseball batter silhouette images to distance and polar plots
   svgContainer.append("image")
-  .attr("xlink:href","http://www.supercoloring.com/sites/default/files/silhouettes/2015/07/baseball-batter-black-silhouette.svg")
+  .attr("xlink:href","/Users/jeffrey/github/jeffreytsang.github.io/silhouette.png")
   .attr("width", (1/2.5)*screenHeight)
   .attr("height", (1/2.5)*screenHeight)
   .attr("fill", "black")
@@ -647,7 +647,7 @@ function callback (error, data, dataKinematic) {
   .attr("style", "fill: red");
 
   svgContainer.append("image")
-  .attr("xlink:href","http://www.supercoloring.com/sites/default/files/silhouettes/2015/07/baseball-batter-black-silhouette.svg")
+  .attr("xlink:href"," /Users/jeffrey/github/jeffreytsang.github.io/silhouette.png")
   .attr("width", (1/2.5)*screenHeight)
   .attr("height", (1/2.5)*screenHeight)
   .attr("fill", "black")
@@ -817,7 +817,7 @@ function callback (error, data, dataKinematic) {
   .attr("style","font-family: Merriweather; font-size: 12; font-weight: normal")
   .attr("transform","translate("+(0.195*screenWidth)+","+0.02*screenHeight+")")
   .text("Wind");
-  
+
   // svgContainer1.attr("transform", "scale(0.9)");
 
 </script>
