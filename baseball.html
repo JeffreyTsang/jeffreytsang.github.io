@@ -637,7 +637,7 @@ function callback (error, data, dataKinematic) {
 };
 
   //append baseball batter silhouette images to distance and polar plots
-  svgContainer.append("image")
+  svgContainer.append("svg:image")
   // .attr("xlink:href", function() {return "file:/Users/jeffrey/github/jeffreytsang.github.io/silhouette.png"})
   .attr("xlink:href","/Users/jeffrey/github/jeffreytsang.github.io/silhouette.png")
   .attr("width", (1/2.5)*screenHeight)
@@ -647,7 +647,7 @@ function callback (error, data, dataKinematic) {
   .attr("y",0.315*screenHeight)
   .attr("style", "fill: red");
 
-  svgContainer.append("image")
+  svgContainer.append("svg:image")
   // .attr("xlink:href", function() {return "file:/Users/jeffrey/github/jeffreytsang.github.io/silhouette.png"})
   .attr("xlink:href","/Users/jeffrey/github/jeffreytsang.github.io/silhouette.png")
   .attr("width", (1/2.5)*screenHeight)
