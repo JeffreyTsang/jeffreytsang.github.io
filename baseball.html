@@ -1,0 +1,826 @@
+<html>
+<title>How well do kinematics predict homerun trajectories?</title>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<link href="https://fonts.googleapis.com/css?family=Merriweather" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Merriweather+Sans" rel="stylesheet">
+<style> 
+  svg { font-family: 'Merriweather', serif;} 
+</style>
+<body>
+<svg height="400" width="400" id="container">
+</svg>
+<script id="notes">
+
+//set up svg canvas to contain visualization
+var svgContainer1 = d3.select("#container");
+
+var screenWidth = 1024;
+// window.screen.width*.8;
+var screenHeight = 640;
+// window.screen.height*.8;
+
+originY = screenHeight/2;
+radius = screenWidth/2.5;
+
+svgContainer1.attr("width",  screenWidth);
+svgContainer1.attr("height", screenHeight*2.8);
+
+//append graphics elements for each subsection of visualization
+//distance plot
+var svgContainer = svgContainer1.append("g");
+svgContainer.attr("id", "distance");
+svgContainer.attr("width",  screenWidth);
+svgContainer.attr("height", screenHeight*2.5);
+svgContainer.attr("transform", "translate(0,"+screenHeight*0.15+")");
+
+//polar plot
+var svg = svgContainer1.append("g");
+svg.attr("id", "polar");
+svg.attr("width",  screenWidth);
+svg.attr("height", screenHeight);
+svg.attr("transform", "translate("+screenHeight/2.5+","+(screenHeight*1.25)+")");
+
+//freebody diagram w/ explanation
+var svgLast = svgContainer1.append("g");
+svgLast.attr("id", "freebody");
+svgLast.attr("width",  screenWidth);
+svgLast.attr("height", screenHeight*2.5);
+svgLast.attr("transform", "translate(0,"+screenHeight*0.45+")");
+
+//function to mask out circular region for polar plot; appends a corresponding clip path to svg
+function maskCircle (id, rad){
+  string1="M 0 "+screenHeight/2+" l "+rad*Math.cos((Math.PI/180)*40)+" "+(-rad*Math.sin((Math.PI/180)*40))+" "+(rad-rad*Math.cos((Math.PI/180)*40))+ " 0 0 "+rad*Math.sin((Math.PI/180)*40)+" 0 "+(-rad*Math.sin((Math.PI/180)*-20))+" "+(-1*(rad-rad*Math.cos((Math.PI/180)*-20))) +" 0 Z";
+
+  svg.append("clipPath")
+  .attr("id", id)
+  .append("path")
+  .attr("d", string1);
+}
+
+//invoke masking function on polar plot; set up polar plot coordinate system
+maskCircle("coordSystem",radius);
+
+svg.append("circle")
+.attr("cx", 0)
+.attr("cy", screenHeight/2)
+.attr("r", radius)
+.attr("opacity", 0.04)
+.attr("clip-path","url(#coordSystem)");
+
+//add title and subtitle to visualization
+svgContainer1.append("text")
+.attr("x",screenWidth*0.025)
+.attr("y",screenHeight*0.05)
+.attr("text-anchor", "left")
+.attr("alignment-baseline", "middle")
+.attr("style","font-family: Merriweather Sans; font-size: 30; font-weight: bold")
+.text("How well do kinematics predict homerun trajectories?");
+
+svgContainer1.append("text")
+.attr("x",screenWidth*0.025)
+.attr("y",screenHeight*0.10)
+.attr("text-anchor", "left")
+.attr("alignment-baseline", "middle")
+.attr("style","font-family: Merriweather; font-size: 14; font-weight: normal")
+.attr("fill","grey")
+.text("We compare MLB Statcast data for hardest-hit baseballs from 2015-2017 to a basic physics model.");
+
+var rawData, rawDataKinetic;
+var kinematics = [];
+var actual = [];
+
+//define parsing functions to read MLB statcast data (parseLine) and kinematic model data (parseLineKinematic)
+function parseLine (line) {
+  return { exitVelo: Number(line["EXIT VELO (MPH)"]), angle: Number(line["ANGLE"]), outcome: line["OUTCOME"], distance: Number(line["DISTANCE"])};
+}
+
+function parseLineKinematic (line) {
+  return { exitVelo: Number(line["EXIT VELO"]), angle: Number(line["ANGLE"])};
+}
+
+// function to transform polar coordinates to cartesian coordinates, returns transformed coordinate pair
+function transformCoord (rad, ang) {
+  return [(rad*Math.cos((Math.PI/180)*ang)),screenHeight-((rad*Math.sin((Math.PI/180)*ang))+originY)]
+}
+
+//returns distance (ft) predicted by kinematic model; accepts arguments for angle and initial velocity
+function kinematicDistance (ang, velocity){
+  var velo = 0.44704*velocity;
+  var angle = ang*(Math.PI/180);
+  var g = -9.81;
+  var y0 =0.9144;
+  var dist = (velo*Math.cos(angle))*(-velo*Math.sin(angle)-Math.sqrt(((velo*Math.sin(angle))**2)-(4*g*y0)))/(2*g);
+  return (dist*3.28084);
+}
+
+//queue data files to be parsed
+d3.queue()
+.defer(d3.csv, "baseball_MLB_statcast.csv", parseLine)
+.defer(d3.csv, "kinematic_angle_threshold.csv", parseLineKinematic)
+.await(callback);
+
+//implement initial data processing in callback function
+function callback (error, data, dataKinematic) {
+  rawData = data;
+  rawDataKinetic = dataKinematic;
+  rawData.splice(rawData.length - 1, 1);
+
+  // define linear scale for exit velocity; range is radial axis of polar plot
+  var veloExtent = d3.extent(rawData, function (d){
+  	return d.exitVelo;});
+  var veloScale = d3.scaleLinear().domain(veloExtent).range([radius*0.4,radius*0.9]);
+
+  //draw angular gridlines and labels on polar plot 
+  for (var i = -20; i<= 40; i = i+10){
+    
+    var coords= transformCoord(radius,i);
+    var coordsText= transformCoord(radius*1.05,i);
+
+    svg.append("text")
+    .attr("x",coordsText[0])
+    .attr("y",coordsText[1])
+    .attr("text-anchor", "middle")
+    .attr("alignment-baseline", "middle")
+    .attr("transform", "rotate("+(-i)+","+coordsText[0]+","+coordsText[1]+")")
+    .attr("fill", "grey")
+    .attr("style","font-size: 14")
+    .text(i+"\u00B0");
+
+    svg.append("line")
+    .attr("x1", 0)
+    .attr("x2", coords[0])
+    .attr("y1", screenHeight/2)
+    .attr("y2", coords[1])
+    .attr("stroke", "black")
+    .attr("opacity", 0.2);
+  }
+
+  //draw radial gridlines and labels on polar plot
+  for (var i = 114; i<= 124; i=i+2){
+    
+    maskCircle(String(i),veloScale(i));
+
+    svg.append("circle")
+    .attr("cx", 0)
+    .attr("cy", screenHeight/2)
+    .attr("r", veloScale(i))
+    .attr("fill", "none")
+    .attr("stroke", "black")
+    .attr("opacity", 0.2)
+    .attr("clip-path", "url(#"+String(i)+")");
+
+    var xcoord = transformCoord(veloScale(i),40)[0];
+    var ycoord = transformCoord(veloScale(i),40)[1];   
+
+    svg.append("text")
+    .attr("x", xcoord-(radius)*0.05*Math.cos(40*(Math.PI/180)))
+    .attr("y", ycoord-(radius)*0.05*Math.sin(40*(Math.PI/180)))
+    .attr("fill", "grey")
+    .attr("text-anchor", "middle")
+    .attr("alignment-baseline", "middle")
+    .attr("style","font-family: Merriweather; font-size: 14")
+    .attr("transform", "rotate(-40,"+(xcoord-(radius)*0.05*Math.cos(40*(Math.PI/180)))+","+(ycoord-(radius)*0.05*Math.sin(40*(Math.PI/180)))+")")
+    .text(i);
+  }
+
+  var radialLabel = transformCoord(veloScale(d3.mean(veloExtent)),40);
+  var polarLabel = transformCoord(veloScale(129),0);
+
+  svg.append("text")
+  .attr("x", radialLabel[0]-(radius)*0.15*Math.cos(40*(Math.PI/180)))
+  .attr("y", radialLabel[1]-(radius)*0.15*Math.sin(40*(Math.PI/180)))
+  .attr("fill", "grey")
+  .attr("text-anchor", "middle")
+  .attr("alignment-baseline", "middle")
+  .attr("style","font-family: Merriweather; font-size: 14")
+  .attr("transform", "rotate(-40,"+(radialLabel[0]-(radius)*0.15*Math.cos(40*(Math.PI/180)))+","+(radialLabel[1]-(radius)*0.15*Math.sin(40*(Math.PI/180)))+")")
+  .text("Exit Velocity (mph)");
+
+  svg.append("text")
+  .attr("x", polarLabel[0])
+  .attr("y", polarLabel[1])
+  .attr("fill", "grey")
+  .attr("text-anchor", "middle")
+  .attr("alignment-baseline", "middle")
+  .attr("style","font-family: Merriweather; font-size: 14")
+  .text("Launch Angle");
+
+  //define linear distance scale for trajectory visualization
+  var distScale = d3.scaleLinear().domain([200,525]).range([screenWidth*0.7,screenWidth*0.97]);
+
+  var minAngle = d3.min(rawData, function (d){
+    return (d.outcome == "Home Run") ? d.angle : 100;
+  });
+
+  //define plotting points for minimum recorded launch angle for a homerun
+  var actualHRThreshold = [{"exitVelo": 114, "angle": minAngle},
+                           {"exitVelo": veloScale.invert(radius), "angle": minAngle}];
+
+  //define line generator which draws line through plotting points
+  var kinematicThreshold = d3.line()
+    .x(function(d) { return transformCoord(veloScale(d.exitVelo), d.angle)[0]; })
+    .y(function(d) { return transformCoord(veloScale(d.exitVelo), d.angle)[1]; })
+    .curve(d3.curveLinear);
+
+  svg.append("text")
+  .attr("x", transformCoord(veloScale(125.7),14)[0])
+  .attr("y", transformCoord(veloScale(125.7),14)[1])
+  .attr("fill", "indianred")
+  .attr("style","font-family: Merriweather; font-size: 12")
+  .attr("text-anchor", "right")
+  .text("Minimum measured");
+
+  svg.append("text")
+  .attr("x", transformCoord(veloScale(125.7),14)[0])
+  .attr("y", transformCoord(veloScale(125.7),14)[1]+screenHeight*0.02)
+  .attr("fill", "indianred")
+  .attr("style","font-family: Merriweather; font-size: 12")
+  .attr("text-anchor", "right")
+  .text("homerun launch angle = 13.5\u00B0");
+
+  svg.append("text")
+  .attr("x", transformCoord(veloScale(125.7),25)[0])
+  .attr("y", transformCoord(veloScale(125.7),25)[1]-screenHeight*0.02)
+  .attr("fill", "cornflowerblue")
+  .attr("style","font-family: Merriweather; font-size: 12")
+  .attr("text-anchor", "right")
+  .text("Predicted launch angle needed to achieve");
+
+  svg.append("text")
+  .attr("x", transformCoord(veloScale(125.7),25)[0])
+  .attr("y", transformCoord(veloScale(125.7),25)[1]+screenHeight*0.0)
+  .attr("fill", "cornflowerblue")
+  .attr("style","font-family: Merriweather; font-size: 12")
+  .attr("text-anchor", "right")
+  .text("shortest recorded homerun distance");
+
+  svg.append("text")
+  .attr("x", transformCoord(veloScale(125.7),25)[0])
+  .attr("y", transformCoord(veloScale(125.7),25)[1]+screenHeight*0.02)
+  .attr("fill", "cornflowerblue")
+  .attr("style","font-family: Merriweather; font-size: 12")
+  .attr("text-anchor", "right")
+  .text("(as a function of exit velocity)");
+
+  //append lines correpsonding to minimum angle thresholds (actual and kinematic prediction)
+  svg.append("path")
+  .attr("d", kinematicThreshold(actualHRThreshold))
+  .attr("stroke", "indianred")
+  .attr("stroke-width", 2)
+  .attr("fill", "none")
+  .attr("opacity",0.7);
+  // .attr("style","stroke-dasharray: 3, 2");
+
+  svg.append("path")
+  .attr("d", kinematicThreshold(rawDataKinetic))
+  .attr("stroke", "cornflowerblue")
+  .attr("stroke-width", 3)
+  .attr("fill", "none")
+  .attr("opacity",0.9)
+  .attr("style","stroke-dasharray: 3, 2");
+
+  //add polar plot legends
+  svg.append("circle")
+  .attr("cx", transformCoord(veloScale(119),90)[0])
+  .attr("cy", transformCoord(veloScale(119),90)[1])
+  .attr("fill", "red")
+  .attr("opacity",0.5)
+  .attr("r", 8);
+
+  svg.append("circle")
+  .attr("cx", transformCoord(veloScale(118),90)[0])
+  .attr("cy", transformCoord(veloScale(118),90)[1])
+  .attr("fill", "grey")
+  .attr("opacity",0.5)
+  .attr("r", 8);
+
+  svg.append("text")
+  .attr("x", transformCoord(veloScale(119),90)[0])
+  .attr("y", transformCoord(veloScale(119),90)[1])
+  .attr("fill", "grey")
+  .attr("style","font-family: Merriweather; font-size: 12")
+  .attr("text-anchor", "left")
+  .attr("alignment-baseline", "middle")
+  .attr("transform","translate("+radius*0.04+",0)")
+  .text("home run");
+
+  svg.append("text")
+  .attr("x", transformCoord(veloScale(118),90)[0])
+  .attr("y", transformCoord(veloScale(118),90)[1])
+  .attr("fill", "grey")
+  .attr("style","font-family: Merriweather; font-size: 12")
+  .attr("text-anchor", "left")
+  .attr("alignment-baseline", "middle")
+  .attr("transform","translate("+radius*0.04+",0)")
+  .text("not a home run");
+
+  //loop through MLB statcast data
+  rawData.forEach(function (d){
+
+  	var coords = transformCoord(veloScale(d.exitVelo), d.angle);
+    var dist = kinematicDistance(d.angle, d.exitVelo);
+
+    //sort data for homerun distance visualization
+    if (d.outcome == "Home Run"){
+      kinematics.push(dist);
+      actual.push(d.distance);
+    }
+
+    //plot raw data on polar plot
+    if (d.angle <= 40){
+      svg.append("circle")
+      .attr("cx", coords[0])
+      .attr("cy", coords[1])
+      .attr("r", 3)
+      .attr("opacity", 0.5)
+      .attr("fill", d.outcome == "Home Run" ? "red":"grey");
+    } 
+
+  });
+
+  //returns function describing parabolic trajectory connecting points (x0,y0) to (xf,yf) with vertex at y = h; 
+  //mathematical expressions for parabola coefficients generated with Wolfram mathematica
+  function generateParabola (x0,y0,xf,yf,h){
+    var scaleFactor = (2*Math.sqrt(((x0-xf)**4)*(h-y0)*(h-yf))/((x0-xf)**4))+((-2*h)+y0+yf)/((x0-xf)**2);
+    var offset = (Math.sqrt(((x0-xf)**4)*(h-y0)*(h-yf))+((x0-xf)*(h*(x0-xf)+(xf*y0)-(x0*yf))))/((x0-xf)*(y0-yf))
+    
+    return function (pos){
+      return scaleFactor*((pos-offset)**2)+h;
+    }
+  }
+
+  //returns list of plotting points generated from function returned by generateParabola
+  function getParabolaPath(func, x0, xf){
+    var start = x0;
+    var path = [];
+    deltaX = 0.001*(xf-x0);
+
+    while (start <= xf){
+      path.push({"x": start, "y": func(start)});
+      start = start + deltaX;
+    }
+    return path;
+  }
+
+  //generate parabolic paths for distance plots
+  var kinematicPath1 = generateParabola(screenHeight/2.5,screenHeight*0.5,distScale(d3.max(kinematics)),screenHeight*0.68,screenHeight*0.2);
+  var kinematicPath2 = generateParabola(screenHeight/2.5,screenHeight*0.5,distScale(d3.min(kinematics)),screenHeight*0.68,screenHeight*0.35);
+  var actualPath1 = generateParabola(screenHeight/2.5,screenHeight*0.5,distScale(d3.max(actual)),screenHeight*0.68,screenHeight*0.17);
+  var actualPath2 = generateParabola(screenHeight/2.5,screenHeight*0.5,distScale(d3.min(actual)),screenHeight*0.68,screenHeight*0.3);
+
+  plotKin1 = getParabolaPath(kinematicPath1,screenHeight/2.5,distScale(d3.max(kinematics)));
+  plotKin2 = getParabolaPath(kinematicPath2,screenHeight/2.5,distScale(d3.min(kinematics)));
+  plotKinTotal = plotKin1.concat(plotKin2.reverse());
+
+  plotAct1 = getParabolaPath(actualPath1,screenHeight/2.5,distScale(d3.max(actual)));
+  plotAct2 = getParabolaPath(actualPath2,screenHeight/2.5,distScale(d3.min(actual)));
+  plotActTotal = plotAct1.concat(plotAct2.reverse());
+
+  var envelope = d3.line()
+    .x(function(d) { return d.x; })
+    .y(function(d) { return d.y; })
+    .curve(d3.curveLinear);
+
+  //append parabolic paths
+  svgContainer.append("path")
+  .attr("d", envelope(plotActTotal))
+  .attr("stroke", "indianred")
+  .attr("stroke-width", 3)
+  .attr("fill", "indianred")
+  .attr("stroke-opacity", 1)
+  .attr("opacity",0.5);
+
+  svgContainer.append("path")
+  .attr("d", envelope(plotKinTotal))
+  .attr("stroke", "cornflowerblue")
+  .attr("stroke-width", 1)
+  .attr("fill", "cornflowerblue")
+  .attr("opacity",0.1);
+
+  svgContainer.append("path")
+  .attr("d", envelope(plotKinTotal))
+  .attr("stroke", "cornflowerblue")
+  .attr("stroke-width", 3)
+  .attr("fill", "none")
+  .attr("style", "stroke-opacity: 1")
+  .attr("style","stroke-dasharray: 5, 5")
+  .attr("opacity",1);
+
+  //plot and label min/max distances from actual data and kinematic projections
+  svgContainer.append("circle")
+  .attr("cx", distScale(d3.min(kinematics)))
+  .attr("cy", screenHeight*0.68)
+  .attr("r", 10)
+  .attr("opacity", 1)
+  .attr("fill", "cornflowerblue");
+
+  svgContainer.append("circle")
+  .attr("cx", distScale(d3.max(kinematics)))
+  .attr("cy", screenHeight*0.68)
+  .attr("r", 10)
+  .attr("opacity", 1)
+  .attr("fill", "cornflowerblue");
+
+  svgContainer.append("circle")
+  .attr("cx", distScale(d3.min(actual)))
+  .attr("cy", screenHeight*0.68)
+  .attr("r", 10)
+  .attr("opacity", 1)
+  .attr("fill", "indianred");
+
+  svgContainer.append("circle")
+  .attr("cx", distScale(d3.max(actual)))
+  .attr("cy", screenHeight*0.68)
+  .attr("r", 10)
+  .attr("opacity", 1)
+  .attr("fill", "indianred");
+
+  svgContainer.append("text")
+  .attr("x", distScale(d3.min(kinematics)))
+  .attr("y", screenHeight*0.71)
+  .attr("fill", "cornflowerblue")
+  .attr("text-anchor", "middle")
+  .attr("alignment-baseline", "middle")
+  .attr("style","font-family: Merriweather; font-size: 12")
+  .text(Math.round(d3.min(kinematics)));
+
+  svgContainer.append("text")
+  .attr("x", distScale(d3.max(kinematics)))
+  .attr("y", screenHeight*0.71)
+  .attr("fill", "cornflowerblue")
+  .attr("text-anchor", "middle")
+  .attr("alignment-baseline", "middle")
+  .attr("style","font-family: Merriweather; font-size: 12")
+  .text(Math.round(d3.max(kinematics)));
+
+  svgContainer.append("text")
+  .attr("x", distScale(d3.min(actual)))
+  .attr("y", screenHeight*0.71)
+  .attr("fill", "indianred")
+  .attr("text-anchor", "middle")
+  .attr("alignment-baseline", "middle")
+  .attr("style","font-family: Merriweather; font-size: 12")
+  .text(d3.min(actual));
+
+  svgContainer.append("text")
+  .attr("x", distScale(d3.max(actual)))
+  .attr("y", screenHeight*0.71)
+  .attr("fill", "indianred")
+  .attr("text-anchor", "middle")
+  .attr("alignment-baseline", "middle")
+  .attr("style","font-family: Merriweather; font-size: 12")
+  .text(d3.max(actual));
+
+  svgContainer.append("line")
+  .attr("x1", distScale(Math.round(d3.min(kinematics))))
+  .attr("y1", screenHeight*0.74)
+  .attr("x2", distScale(Math.round(d3.max(kinematics))))
+  .attr("y2", screenHeight*0.74)
+  .attr("stroke", "cornflowerblue")
+  .attr("stroke-width", 3);
+
+  svgContainer.append("line")
+  .attr("x1", distScale(Math.round(d3.min(actual))))
+  .attr("y1", screenHeight*0.76)
+  .attr("x2", distScale(Math.round(d3.max(actual))))
+  .attr("y2", screenHeight*0.76)
+  .attr("stroke", "indianred")
+  .attr("stroke-width", 3);
+
+  //add axis to distance plot
+  var distAxisContainer = svgContainer.append("g").attr("transform", "translate("+0+","+screenHeight*0.78+")");
+  distAxisContainer
+  .attr("style","font-family: Merriweather; font-size: 14");
+  var distAxis = d3.axisBottom(distScale).tickFormat(function (d) {return (d%100==0)?d:"";});
+  distAxisContainer.call(distAxis);
+
+  svgContainer.append("text")
+  .attr("x",distScale(362.5))
+  .attr("y",screenHeight*0.855)
+  .attr("text-anchor", "middle")
+  .attr("alignment-baseline", "middle")
+  .attr("style","font-family: Merriweather; font-size: 14")
+  .text("Distance (ft)");
+
+  //add text to distance plot
+  svgContainer.append("text")
+  .attr("x",screenWidth*0.025)
+  .attr("y",screenHeight*0.05)
+  .attr("text-anchor", "left")
+  .attr("alignment-baseline", "middle")
+  .attr("style","font-family: Merriweather Sans; font-size: 24; font-weight: bold")
+  .attr("fill","black")
+  .text("Predicted vs. actual homerun distances");
+
+  svgContainer.append("text")
+  .attr("x",screenWidth*0.025)
+  .attr("y",screenHeight*0.10)
+  .attr("text-anchor", "left")
+  .attr("alignment-baseline", "middle")
+  .attr("style","font-family: Merriweather; font-size: 14; font-weight: normal")
+  .attr("fill","grey")
+  .text("The kinematics model treats the baseball as a point-like \"particle\" acted upon by gravity only. Using the angles and exit velocities of recorded");
+
+  svgContainer.append("text")
+  .attr("x",screenWidth*0.025)
+  .attr("y",screenHeight*0.127)
+  .attr("text-anchor", "left")
+  .attr("alignment-baseline", "middle")
+  .attr("style","font-family: Merriweather; font-size: 14; font-weight: normal")
+  .attr("fill","grey")
+  .text("homeruns, we plot the span of model-projected distances against the range of actual distances.");
+
+  var secondHeader = svgContainer.append("text")
+  .attr("id","secondHeader")
+  .attr("x",0)
+  .attr("y",screenHeight)
+  .attr("text-anchor", "right")
+  .attr("alignment-baseline", "middle")
+  .attr("style","font-family: Merriweather Sans; font-size: 24; font-weight: bold")
+  .attr("fill","black")
+  .text("Batted balls and their launch angles");
+  console.log(document.getElementById("secondHeader").getBBox().width);
+  secondHeader.attr("transform", "translate("+(screenWidth-(screenWidth*0.025)-(417.3515625))+",0)");
+  // // secondHeader.attr("x", screenWidth-(screenWidth*0.025)+(-1*document.getElementById("secondHeader").getBBox().width));
+  // console.log(secondHeader.attr("x"))
+
+  var secondText = svgContainer.append("text")
+  .attr("id","secondText")
+  .attr("x",screenWidth-(screenWidth*0.025))
+  .attr("y",screenHeight*1.05)
+  .attr("text-anchor", "right")
+  .attr("alignment-baseline", "middle")
+  .attr("style","font-family: Merriweather; font-size: 14; font-weight: normal")
+  .attr("fill","grey")
+  .text("Below we plot batted balls according to their launch angles and exit velocities. Each ball is colored to indicate the result of the at-bat");
+  console.log(document.getElementById("secondText").getBBox().width);
+  secondText.attr("transform", "translate("+(-1*908.078125)+",0)");
+
+  var secondText2 = svgContainer.append("text")
+  .attr("id","secondText2")
+  .attr("x",screenWidth-(screenWidth*0.025))
+  .attr("y",screenHeight*1.077)
+  .attr("text-anchor", "right")
+  .attr("alignment-baseline", "middle")
+  .attr("style","font-family: Merriweather; font-size: 14; font-weight: normal")
+  .attr("fill","grey")
+  .text("\u2014 homerun or not. Using the model, we predict the minimum launch angle needed to achieve the shortest recorded homerun distance.");
+  console.log(document.getElementById("secondText2").getBBox().width);
+  secondText2.attr("transform", "translate("+(-1*927.109375)+",0)");
+
+  svgContainer.append("text")
+  .attr("x",distScale(-170))
+  .attr("y",screenHeight*0.42)
+  .attr("text-anchor", "left")
+  .attr("alignment-baseline", "middle")
+  .attr("style","font-family: Merriweather; font-size: 12; font-weight: bolder")
+  .attr("fill","cornflowerblue")
+  .text("Kinematic Projections");
+
+  svgContainer.append("text")
+  .attr("x",distScale(-170))
+  .attr("y",screenHeight*0.44)
+  .attr("text-anchor", "left")
+  .attr("alignment-baseline", "middle")
+  .attr("style","font-family: Merriweather; font-size: 12; font-weight: normal")
+  .attr("fill","cornflowerblue")
+  .text("(based on measured launch");
+
+  svgContainer.append("text")
+  .attr("x",distScale(-170))
+  .attr("y",screenHeight*0.46)
+  .attr("text-anchor", "left")
+  .attr("alignment-baseline", "middle")
+  .attr("style","font-family: Merriweather; font-size: 12; font-weight: normal")
+  .attr("fill","cornflowerblue")
+  .text("angles and exit velocities)");
+
+  svgContainer.append("text")
+  .attr("x",distScale(200))
+  .attr("y",screenHeight*0.20)
+  .attr("text-anchor", "left")
+  .attr("alignment-baseline", "middle")
+  .attr("style","font-family: Merriweather; font-size: 12; font-weight: bolder")
+  .attr("fill","indianred")
+  .text("Recorded HR Distances");
+
+  svgContainer.append("text")
+  .attr("x",distScale(-170))
+  .attr("y",screenHeight*0.72)
+  .attr("text-anchor", "left")
+  .attr("alignment-baseline", "middle")
+  .attr("style","font-family: Merriweather; font-size: 12; font-weight: normal")
+  .attr("fill","grey")
+  .attr("opacity",0.6)
+  .text("For a given launch angle and");
+
+  svgContainer.append("text")
+  .attr("x",distScale(-170))
+  .attr("y",screenHeight*0.74)
+  .attr("text-anchor", "left")
+  .attr("alignment-baseline", "middle")
+  .attr("style","font-family: Merriweather; font-size: 12; font-weight: normal")
+  .attr("fill","grey")
+  .attr("opacity",0.6)
+  .text("exit velocity, predicted distances from");
+
+  svgContainer.append("text")
+  .attr("x",distScale(-170))
+  .attr("y",screenHeight*0.76)
+  .attr("text-anchor", "left")
+  .attr("alignment-baseline", "middle")
+  .attr("style","font-family: Merriweather; font-size: 12; font-weight: normal")
+  .attr("fill","grey")
+  .attr("opacity",0.6)
+  .text("the kinematic model fall short of actual data.");
+
+};        
+
+  //append baseball batter silhouette images to distance and polar plots
+  svgContainer.append("image")
+  .attr("xlink:href","http://www.supercoloring.com/sites/default/files/silhouettes/2015/07/baseball-batter-black-silhouette.svg")
+  .attr("width", (1/2.5)*screenHeight)
+  .attr("height", (1/2.5)*screenHeight)
+  .attr("fill", "black")
+  .attr("x",0)
+  .attr("y",0.315*screenHeight)
+  .attr("style", "fill: red");
+
+  svgContainer.append("image")
+  .attr("xlink:href","http://www.supercoloring.com/sites/default/files/silhouettes/2015/07/baseball-batter-black-silhouette.svg")
+  .attr("width", (1/2.5)*screenHeight)
+  .attr("height", (1/2.5)*screenHeight)
+  .attr("fill", "black")
+  .attr("x",0)
+  .attr("y",(0.315*screenHeight)+(screenHeight*1.1))
+  .attr("style", "fill: red");
+
+  //add text to final section with freebody diagram and explanation of findings
+  svgLast.append("text")
+  .attr("x",screenWidth*0.025)
+  .attr("y",screenHeight*1.65)
+  .attr("text-anchor", "left")
+  .attr("alignment-baseline", "middle")
+  .attr("style","font-family: Merriweather Sans; font-size: 24; font-weight: bold")
+  .attr("fill","black")
+  .attr("opacity",1)
+  .text("Why does the kinematic model fall short?");
+
+  svgLast.append("text")
+  .attr("x",screenWidth*0.025)
+  .attr("y",screenHeight*1.7)
+  .attr("text-anchor", "left")
+  .attr("alignment-baseline", "middle")
+  .attr("style","font-family: Merriweather; font-size: 14; font-weight: normal")
+  .attr("fill","grey")
+  .attr("opacity",1)
+  .text("Our model underpredicts homerun distances and overpredicts the minimum");
+
+  svgLast.append("text")
+  .attr("x",screenWidth*0.025)
+  .attr("y",screenHeight*1.727)
+  .attr("text-anchor", "left")
+  .attr("alignment-baseline", "middle")
+  .attr("style","font-family: Merriweather; font-size: 14; font-weight: normal")
+  .attr("fill","grey")
+  .attr("opacity",1)
+  .text("angle needed for a homerun. This is likely due to forces that are not accounted");
+
+  svgLast.append("text")
+  .attr("x",screenWidth*0.025)
+  .attr("y",screenHeight*1.754)
+  .attr("text-anchor", "left")
+  .attr("alignment-baseline", "middle")
+  .attr("style","font-family: Merriweather; font-size: 14; font-weight: normal")
+  .attr("fill","grey")
+  .attr("opacity",1)
+  .text("for in our model (shown here in red). Notably, the exclusion of lift generated by");
+
+  svgLast.append("text")
+  .attr("x",screenWidth*0.025)
+  .attr("y",screenHeight*1.781)
+  .attr("text-anchor", "left")
+  .attr("alignment-baseline", "middle")
+  .attr("style","font-family: Merriweather; font-size: 14; font-weight: normal")
+  .attr("fill","grey")
+  .attr("opacity",1)
+  .text("backspin may be principally responsible for model predictions being skewed down.");
+
+  //append image of baseball for freebody diagram
+  var baseball = svgLast.append("image")
+  .attr("xlink:href","https://upload.wikimedia.org/wikipedia/commons/9/92/Baseball.svg")
+  .attr("width", 0.25*screenHeight)
+  .attr("height", 0.25*screenHeight)
+  .attr("fill", "black")
+  .attr("x", (screenWidth/2)+screenWidth*0.18)
+  .attr("y", screenHeight*1.7)
+  .attr("style", "fill: red");
+
+  //append arrows to freebody diagram representing force vectors
+  var baseballMiddleX = Number(baseball.attr("x"))+Number(baseball.attr("width")/2);
+  var baseballMiddleY = Number(baseball.attr("y"))+Number(baseball.attr("height")/2);
+
+  var arrowUp = svgLast.append("image")
+  .attr("xlink:href","https://upload.wikimedia.org/wikipedia/commons/d/d7/Arrow_right.svg")
+  .attr("width", 0.1*screenHeight)
+  .attr("height", 0.1*screenHeight)
+  .attr("fill", "black");
+
+  arrowUp
+  .attr("x", baseballMiddleX-Number(arrowUp.attr("width")/2))
+  .attr("y", baseball.attr("y")-Number(arrowUp.attr("height")/2))
+  .attr("style", "fill: red")
+  .attr("transform","rotate(-90,"+(baseballMiddleX-Number(arrowUp.attr("width")/2))+","+(baseball.attr("y")-Number(arrowUp.attr("height")/2))+") translate(-35,0)");
+
+  var arrowSide =svgLast.append("image")
+  .attr("xlink:href","https://upload.wikimedia.org/wikipedia/commons/d/d7/Arrow_right.svg")
+  .attr("width", 0.1*screenHeight)
+  .attr("height", 0.1*screenHeight)
+  .attr("fill", "black");
+
+  arrowSide
+  .attr("x", baseball.attr("x")-Number(arrowSide.attr("width")/2))
+  .attr("y", baseballMiddleY-Number(arrowSide.attr("height")/2))
+  .attr("style", "fill: red")
+  .attr("transform","rotate(-180,"+(baseball.attr("x"))+","+(baseballMiddleY)+") translate(30,0)");
+
+  var arrowSide2 =svgLast.append("image")
+  .attr("xlink:href","https://upload.wikimedia.org/wikipedia/commons/d/d7/Arrow_right.svg")
+  .attr("width", 0.1*screenHeight)
+  .attr("height", 0.1*screenHeight)
+  .attr("fill", "black");
+
+  arrowSide2
+  .attr("x", baseball.attr("x")-Number(arrowSide2.attr("width")/2))
+  .attr("y", baseballMiddleY-Number(arrowSide2.attr("height")/2))
+  .attr("style", "fill: red")
+  .attr("transform","translate(190,0)");
+
+  var arrowDown = svgLast.append("image")
+  .attr("xlink:href","https://upload.wikimedia.org/wikipedia/commons/d/d7/Arrow_right.svg")
+  .attr("width", 0.1*screenHeight)
+  .attr("height", 0.1*screenHeight)
+  .attr("fill", "black");
+
+  arrowDown
+  .attr("x", baseballMiddleX-Number(arrowDown.attr("width")/2))
+  .attr("y", baseball.attr("y")-Number(arrowDown.attr("height")/2))
+  .attr("style", "fill: red")
+  .attr("transform","rotate(90,"+(baseballMiddleX)+","+(baseball.attr("y"))+") translate(188,0)");
+
+  svgLast.append("text")
+  .attr("x",arrowUp.attr("x"))
+  .attr("y",arrowUp.attr("y"))
+  .attr("fill", "indianred")
+  .attr("text-anchor", "center")
+  .attr("alignment-baseline", "middle")
+  .attr("style","font-family: Merriweather; font-size: 12; font-weight: normal")
+  .attr("transform","translate("+0.05*screenWidth+",0)")
+  .text("Lift Force");
+
+  svgLast.append("text")
+  .attr("x",arrowDown.attr("x"))
+  .attr("y",arrowDown.attr("y"))
+  .attr("fill", "cornflowerblue")
+  .attr("text-anchor", "center")
+  .attr("alignment-baseline", "middle")
+  .attr("style","font-family: Merriweather; font-size: 12; font-weight: normal")
+  .attr("transform","translate("+0.05*screenWidth+","+0.35*screenHeight+")")
+  .text("Weight");
+
+  svgLast.append("text")
+  .attr("x",arrowDown.attr("x"))
+  .attr("y",arrowDown.attr("y"))
+  .attr("fill", "cornflowerblue")
+  .attr("text-anchor", "center")
+  .attr("alignment-baseline", "middle")
+  .attr("style","font-family: Merriweather; font-size: 12; font-weight: normal")
+  .attr("transform","translate("+0.05*screenWidth+","+0.375*screenHeight+")")
+  .text("(included in our model)");
+
+  svgLast.append("text")
+  .attr("x",arrowSide.attr("x"))
+  .attr("y",arrowSide.attr("y"))
+  .attr("fill", "indianred")
+  .attr("text-anchor", "center")
+  .attr("alignment-baseline", "middle")
+  .attr("style","font-family: Merriweather; font-size: 12; font-weight: normal")
+  .attr("transform","translate("+(-0.01*screenWidth)+","+0.02*screenHeight+")")
+  .text("Drag");
+
+  svgLast.append("text")
+  .attr("x",arrowSide2.attr("x"))
+  .attr("y",arrowSide2.attr("y"))
+  .attr("fill", "indianred")
+  .attr("text-anchor", "center")
+  .attr("alignment-baseline", "middle")
+  .attr("style","font-family: Merriweather; font-size: 12; font-weight: normal")
+  .attr("transform","translate("+(0.195*screenWidth)+","+0.02*screenHeight+")")
+  .text("Wind");
+  
+  // svgContainer1.attr("transform", "scale(0.9)");
+
+</script>
+
+</body>
+</html>
